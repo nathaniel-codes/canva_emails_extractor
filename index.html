@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Canva Email Extractor</title>
+	<style>
+		body {
+			background-color: #f5f5f5;
+			font-family: "Arial", sans-serif;
+			margin: 0;
+			padding: 0;
+		}
+		h1 {
+			font-size: 2.5em;
+			font-weight: normal;
+			margin: 2em 0;
+			text-align: center;
+		}
+		form {
+			background-color: white;
+			border-radius: 10px;
+			box-shadow: 0 0 20px rgba(0,0,0,0.1);
+			margin: 0 auto;
+			max-width: 800px;
+			padding: 2em;
+		}
+		label, button {
+			display: block;
+			font-size: 1.2em;
+			margin: 1em 0;
+			text-align: center;
+		}
+		textarea {
+			border-radius: 5px;
+			border: 2px solid #ddd;
+			font-size: 1.1em;
+			padding: 1em;
+			resize: none;
+			width: 100%;
+		}
+		textarea:focus {
+			outline: none;
+			border-color: #7f7fff;
+		}
+		#result {
+			background-color: #f5f5f5;
+			border-radius: 5px;
+			border: 2px solid #ddd;
+			font-size: 1.1em;
+			min-height: 10em;
+			padding: 1em;
+			white-space: pre-wrap;
+		}
+		button {
+			background-color: #7f7fff;
+			border: none;
+			border-radius: 5px;
+			color: white;
+			cursor: pointer;
+			padding: 1em;
+			transition: background-color 0.2s;
+		}
+		button:hover {
+			background-color: #5f5fff;
+		}
+	</style>
+	<script>
+		function extractEmails() {
+			var text = document.getElementById("text").value;
+			var text_split = text.split(" ");
+            var text_split = text.split("\n");
+            //console.log(text_split);
+			var emails = [];
+			for (var i = 0; i < text_split.length; i++) {
+				var pattern = new RegExp("\\b" + text_split[i].trim() + "\\b", "gi");
+				var matches = text.match(pattern);
+				if (matches) {
+					for (var j = 0; j < matches.length; j++) {
+						var email = matches[j].match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i);
+						if (email && !emails.includes(email[0])) {
+							emails.push(email[0]);
+						}
+					}
+				}
+			}
+            console.log(emails);
+			var result = emails.join(",\n");
+            document.getElementById("download").style.display= "block";
+            document.getElementById("result").style.display= "block";
+            document.getElementById("label").style.display= "block";
+			document.getElementById("result").value = result;
+		}
+
+        function saveToFile() {
+  // Get the textarea element and its value
+  const textarea = document.getElementById("result");
+  const text_save = textarea.value;
+
+  // Create a new Blob object with the text as its content
+  const blob = new Blob([text_save], { type: "text/plain" });
+
+  // Create a URL for the Blob object
+  const url = URL.createObjectURL(blob);
+
+  // Create a new anchor element and set its attributes
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "Canva_emails.txt";
+
+  // Programmatically click the anchor to initiate the download
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  // Revoke the URL object to free up memory
+  URL.revokeObjectURL(url);
+}            
+
+function download_enable(){
+    const password = "pass"; // set the password
+    const enteredPassword = prompt("Please enter the password to access this page:"); // prompt the user for the password
+    
+    if((enteredPassword.charCodeAt(0) == 117) && (enteredPassword.charCodeAt(1) == 104) && (enteredPassword.charCodeAt(2) == 117) && (enteredPassword.charCodeAt(3) == 114) && (enteredPassword.charCodeAt(4) == 117))
+    {
+        alert("Welcome Back!")
+    }
+    
+    else
+        { // if the entered password doesn't match the actual password
+            window.location.reload();
+        }
+
+    
+
+    document.getElementById("download").style.display= "none";
+    document.getElementById("result").style.display= "none";
+    document.getElementById("label").style.display= "none";
+}
+	</script>
+</head>
+<body onload="download_enable()">
+	<h1>Email Extractor</h1>
+	<form>
+        <div class="loading"></div>
+		<label for="text">Text to extract:</label>
+		<textarea id="text" name="text"></textarea>
+		<button type="button" onclick="extractEmails()">Extract</button>
+		<label for="result" id="label">Results:</label>
+		<textarea id="result" name=""></textarea>
+        <button type="button" id="download" onclick="saveToFile()">Download</button>
+	</form>
+</body>
+
+</html>
